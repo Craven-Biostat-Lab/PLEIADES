@@ -1,68 +1,33 @@
 <!DOCTYPE html>
 <html>
 <head>
-
-<title>PLEIADES Extracted Datum Browser </title>
-
-<!-- Bootstrap -->
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" integrity="sha512-dTfge/zgoMYpP7QbHy4gWMEGsbsdZeCXz7irItjcC3sPUFtf0kuFbDz/ixG7ArTxmDjLXDmezHubeNikyKGVyQ==" crossorigin="anonymous">
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css" integrity="sha384-aUGj/X2zp5rLCbBxumKTCw2Z50WgIr1vs/PFN4praOTvYXWlVyh2UtNUU0KAUhAX" crossorigin="anonymous">
-<!--<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js" integrity="sha512-K1qjQ+NcF2TYO/eI3M6v8EiNYZfA95pQumfvcVrTHtwQVDG+aHRqLi/ETn2uB+1JqwYqVG3LIvdm9lj6imS/pQ==" crossorigin="anonymous"></script>-->
-
-
 <style>
-body {
-    background-color: white;
-    /*font-family:Tahoma,Verdana,Segoe,sans-serif;*/
-    font-size:14px;
-}
-
-
-#searchbox {
-    margin-top: 100px;
-    max-width: 800px;
-    margin-left: auto;
-    margin-right: auto;
-    border: solid 3px #B70101;
-    border-radius: 10px;
-}
-
-#formcontrols {
-    padding: 30px;
-}
+body {background-color:lightblue;
+font-family:Tahoma,Verdana,Segoe,sans-serif;
+font-size:14px;}
 
 #header {
-    text-align: center;
-    color: white;
-    padding: 10px;
-    background: #B70101 url('test-tube.svg') no-repeat;
-background-position: 40px;
-background-size: auto 70%;
+    background-color:black;
+    color:white;
+    text-align:center;
+    padding:5px;
+}
+#Subject {
+padding-bottom: 25px;
 
 }
+#Assay {
 
-#title {
-    font-size: 200%;
+padding-bottom: 25px;
 }
+#Change {
+padding-bottom: 25px;
 
-#subtitle {
-    font-size: 90%;
 }
+#Treatment {
+padding-bottom: 25px;
 
-
-#logo {
-    height: 30px;
-    width: auto;
-    margin-right: 10px;
-    position: relative;
-    bottom: 4px;
 }
-
-.checkbox-label {
-    font-weight: normal !important;
-}
-
-
 #footer {
     background-color:black;
     color:white;
@@ -75,120 +40,78 @@ background-size: auto 70%;
 </head>
 <body>
 
-
-<div id="searchbox"><form accept-charset="UTF-8" action="/datum" method="POST">
+<form accept-charset="UTF-8" action="/datum" method="POST">
 
 <div id="header">
-    <div id="title">    
-        PLEIADES Extracted Datum Browser
-    </div>
-
+<h1 style="color:lightblue">PLEIADES Extracted Datum Browser</h1>
 </div>
-
-
-<div id="formcontrols" class="form-horizontal">
-
-
-
-<div class="form-group">
-    <label for="subject" class="col-sm-2 control-label">Subject</label>
-    <div class="col-sm-10">
-        <input type="text" name="subject" class="form-control" maxlength="30">
-    </div>
+<br>
+<div id="rank">
+    <h2>Rank Datums</h2>
+    <table>
+        <tr style="width:100%"> 
+            <td width="250px">
+            <input type="radio" name="rank_by" value="expected" checked> Expected number of datums &nbsp &nbsp
+            </td> 
+        </tr>
+        <tr style="width:100%">                                          
+            <td width="250px">                                                                                     
+            <input type="radio" name="rank_by" value="uncertainty"> Most uncertainty about datums &nbsp &nbsp                                               
+            </td>
+        </tr>
+    </table>
 </div>
-
-
-<div class="form-group" style="margin-top:30px">
-    <div class="col-sm-2" style="text-align:right"><label>Assay</label></div>
-
-    <div class="col-sm-5">
-        <label class="checkbox-label"><input type="checkbox" name="assay_phos" value="phos"> Phosphorylation</label>
-    </div>
-
-    <div class="col-sm-5">
-        <label class="checkbox-label"><input type="checkbox" name="assay_copp" value="copptby"> Coprecipitation</label>
-    </div>
-
-    <div class="col-sm-5 col-sm-offset-2">
-        <label class="checkbox-label"><input type="checkbox" name="assay_ubiq" value="ubiq"> Ubiquitination</label>
-    </div>
-
-    <div class="col-sm-5">
-        <label class="checkbox-label"><input type="checkbox" name="assay_gtp" value="GTP-association"> GTP association</label>
-    </div>
-
-</div>
-
-
-
-<div class="form-group" style="margin-top:30px;">
-    <div class="col-sm-2" style="text-align:right"><label>Change</label></div>
-
-    <div class="col-sm-5">
-        <label class="checkbox-label"><input type="checkbox" name="change_inc" value="increased"> Increased</label>
-    </div>
-
-    <div class="col-sm-5">
-        <label class="checkbox-label"><input type="checkbox" name="change_dec" value="decreased"> Decreased</label>
-    </div>
-
-    <div class="col-sm-5 col-sm-offset-2">
-        <label class="checkbox-label"><input type="checkbox" name="change_unc" value="unchanged"> Unchanged</label>
-    </div>
-
-    <div class="col-sm-5">
-        <label class="checkbox-label"><input type="checkbox" name="change_detunc" value="det_unch"> Detectable but unchanged</label>
-    </div>
-
-
-    <div class="col-sm-5 col-sm-offset-2">
-        <label class="checkbox-label"><input type="checkbox" name="change_det" value="detect"> Detectable</label>
-    </div>
-
-    <div class="col-sm-5">
-        <label class="checkbox-label"><input type="checkbox" name="achange_undet" value="undetect"> Undetectable</label>
-    </div>
-
-
-</div>
-
-
-
-
-
-<div class="form-group" style="margin-top:30px;margin-bottom:30px;">
-    <label for="treatment" class="col-sm-2 control-label">Treatment</label>
-    <div class="col-sm-10">
-        <input type="text" name="treatment" class="form-control" maxlength="30">
-    </div>
-</div>
-
-
-
 <hr>
-<div class="form-group" >
-    <label class="control-label col-sm-2">Rank Datums</label>
 
-    <div class="col-sm-5">
-        <label class="checkbox-label"><input type="radio" name="rank_by" value="expected" checked> Expected number of datums</label>
-    </div>
+<div id="Subject">
+<h2>Subject</h2>
 
-    <div class="col-sm-5">
-        <label class="checkbox-label"><input type="radio" name="rank_by" value="uncertainty"> Most uncertainty about datums &nbsp &nbsp</label>
-    </div>
+<input type="text" name="subject" size="40" maxlength="30">
 
 </div>
+<hr>
 
+<div id="Assay">
+<h2>Assay</h2>
+<input type="checkbox" name="assay_phos" value="phos">Phosphorylation<br>
+<input type="checkbox" name="assay_copp" value="copptby">Coprecipitation<br>
+<input type="checkbox" name="assay_ubiq" value="ubiq">Ubiquitination<br>
+<input type="checkbox" name="assay_gtp" value="GTP-association">GTP association<br>
 
-<div class="form-group" style="margin-top:40px;">
-    <div class="col-sm-3 col-sm-offset-2">
-        <input type="submit" id="search" value="Search" class="btn btn-lg btn-danger" >
-    </div>
+</div>
+<hr>
+
+<div id="Change">
+<h2>Change</h2>
+<input type="checkbox" name="change_inc" value="increased">Increased<br>
+<input type="checkbox" name="change_dec" value="decreased">Decreased<br>
+<input type="checkbox" name="change_unc" value="unchanged">Unchanged<br>
+<input type="checkbox" name="change_detunc" value="det_unch">Detectable but unchanged<br>
+<input type="checkbox" name="change_det" value="detect">Detectable<br>
+<input type="checkbox" name="change_undet" value="undetect">Undetectable<br>
+
+</div>
+<hr>
+
+<div id="Treatment">
+<h2>Treatment</h2>
+
+<input type="text" name="treatment" size="40" maxlength="30">
+
+</div>
+<hr>
+<br>
+
+<div>
+<input type="submit" id="search" value="Search" style="width: 100px; height: 40px">
 </div>
 
+<br><br><br>
+<div id="footer">
+University of Wisconsin - Madison
 </div>
-
-</form></div>
+<br>
+</form>
 
 </body>
 </html>

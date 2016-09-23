@@ -23,36 +23,13 @@ sys.setdefaultencoding("utf-8")
 from random import shuffle
 
 
-def create_dict(client_ip, log_assay, log_change, log_subject, log_trtmnt, num_results, my_dict):
+def create_dict(client_ip, log_assay, log_change, log_subject, log_trtmnt, my_dict):
     my_dict["Query"] = {}
     my_dict["Query"]["Client_IP"] = client_ip
     my_dict["Query"]["Assay"] = log_assay
     my_dict["Query"]["Subject"] = log_change
     my_dict["Query"]["Treatment"] = log_trtmnt
     my_dict["Query"]["Change"] = log_change
-    my_dict["Query"]["Result_Size"] = num_results
-
-def build_string(my_dict):
-    res_dict = {}; first = True
-    my_str = "Showing results for "
-    if my_dict["Query"]["Assay"] != "": 
-        my_str += "Assay: " + my_dict["Query"]["Assay"] 
-        first = False
-    if my_dict["Query"]["Subject"] != "": 
-        if not first:   my_str += "; "            
-        else: first = False
-        my_str += "Subject: " + my_dict["Query"]["Subject"] 
-    if my_dict["Query"]["Treatment"] != "": 
-        if not first:   my_str += "; "            
-        else: first = False
-        my_str += "Treatment: " + my_dict["Query"]["Treatment"] 
-    if my_dict["Query"]["Change"] != "": 
-        if not first:   my_str += "; "            
-        else: first = False
-        my_str += "Change: " + my_dict["Query"]["Change"] 
-    res_dict["query"] = my_str
-    res_dict["num"] = my_dict["Query"]["Result_Size"]
-    return res_dict
 
 
 def rank_articles(pmcid_details, rankby):
@@ -76,7 +53,8 @@ def update_cssfile(pmcid):
         if line.strip().endswith('#f8f8f8 }'):
             print css_str,
 
-app = application = Bottle()
+#app = application = Bottle()
+app = Bottle()
 
 @app.route('/')     # http://localhost:8080/
 def main_index():
@@ -105,7 +83,6 @@ def get_feedback():
     try:
         if not os.path.exists(fold_path):
             os.makedirs(fold_path)   
-            os.chmod(fold_path, 766)
     except:
         return "False"
         redirect("404")
@@ -115,18 +92,16 @@ def get_feedback():
         pmcid_path = os.path.join(fold_path, pmcid)
         if not os.path.exists(pmcid_path):
                 os.makedirs(pmcid_path)
-                os.chmod(pmcid_path, 766)
         for datum in json_cliobj["Datums"]:
             if datum["New"] == "No":
-                datum["Related_Datums"] = srno_datumid[json_cliobj["PMCID"].strip()][datum["sr_no"].strip()]
+                datum["Datum_Id"] = srno_datumid[json_cliobj["PMCID"].strip()][datum["sr_no"].strip()]
             else:
-                datum["Related_Datums"] = []
+                datum["Datum_Id"] = []
         json_cliobj.update(search_dict)
         ts_fname = datetime.datetime.now().strftime("%Y%m%d-%H%M%S") + ".json"
         write_path = os.path.join(pmcid_path, ts_fname)
         json_fn = open(write_path, 'w')
         json.dump(json_cliobj, json_fn, indent=4, ensure_ascii=False)
-        os.chmod(write_path, 766)
         return "True"
     except:
         return "False"
@@ -139,8 +114,8 @@ def error404(error):
 
 @app.post('/datum') # or @route('/login', method='POST')
 def process_formdata():
-    global selected_datums; global srno_datumid; global search_dict;
-    selected_datums = {}; srno_datumid = {}; search_dict = {};
+    global srno_datumid; global search_dict;
+    srno_datumid = {}; search_dict = {};
     query = {}; query2 = {}
     client_ip = request.environ.get('REMOTE_ADDR')
 
@@ -175,14 +150,14 @@ def process_formdata():
     if subject.strip() == "":         
         no_subj = True; log_subject = ""
     else:
-        subj_ids = mongodb_obj.get_uniprot_ids(subject.lower().strip())
+        subj_ids, subj_syn = mongodb_obj.get_uniprot_ids(subject.lower().strip())
         if len(subj_ids) == 0:
             subj_ids.append(subject.lower().strip())
             query["map.subject.Entity.strings"] = { "$in": subj_ids }
             query2["Datums.map.subject.Entity.strings"] = { "$in": subj_ids }
         else:
-            query["map.subject.Entity.uniprotSym"] = { "$in": subj_ids }
-            query2["Datums.map.subject.Entity.uniprotSym"] = { "$in": subj_ids }
+            query["map.subject.Entity"] = { "$or": [{"strings": {"$in": subj_syn }}, {"uniprotSym": {"$in": subj_ids }}]}
+            query2["Datums.map.subject.Entity"] = { "$or": [{"strings": {"$in": subj_syn }}, {"uniprotSym": {"$in": subj_ids }}]}
         no_subj = False; #print subj_ids
         log_subject = ", ".join(subj_ids)
 
@@ -191,14 +166,14 @@ def process_formdata():
     if treatment.strip() == "": 
         no_trtmnt = True; log_trtmnt = ""
     else:
-        trtmnt_ids = mongodb_obj.get_uniprot_ids(treatment.lower().strip())
+        trtmnt_ids, trtmnt_syn = mongodb_obj.get_uniprot_ids(treatment.lower().strip())
         if len(trtmnt_ids) == 0:
             trtmnt_ids.append(treatment.lower().strip())
             query["map.treatment.Entity.strings"] = { "$in": trtmnt_ids }
             query2["Datums.map.treatment.Entity.strings"] = { "$in": trtmnt_ids }
         else:
-            query["map.treatment.Entity.uniprotSym"] = { "$in": trtmnt_ids }
-            query2["Datums.map.treatment.Entity.uniprotSym"] = { "$in": trtmnt_ids }
+            query["map.treatment.Entity"] = { "$or": [{"strings": {"$in": trtmnt_syn }}, {"uniprotSym": {"$in": trtmnt_ids }}]} 
+            query2["Datums.map.treatment.Entity"] = { "$or": [{"strings": {"$in": trtmnt_syn }}, {"uniprotSym": {"$in": trtmnt_ids }}]}
         no_trtmnt = False; #print trtmnt_ids, "Saswati"
         log_trtmnt = ", ".join(trtmnt_ids)
 
@@ -223,18 +198,17 @@ def process_formdata():
     if no_subj and no_assay and no_change and no_trtmnt:
         return 'You have not made any selections. Please try again!'
   
-    #return template('The subject is {{sub}}, the treatment is {{trt}}', sub=assay_phos, trt=change_detunc)    
+    #return template('The subject is {{sub}}, the treatment is {{trt}}', sub=assay_phos, trt=change_detunc)
+    create_dict(client_ip, log_assay, log_change, log_subject, log_trtmnt, search_dict)
     log_message = "\n" + client_ip + ":: " + "Assay: " + log_assay + "\t Change: " + log_change + "\t Subject: " + log_subject + "\t Treatment: " + log_trtmnt
     logger.info(log_message)
-    pmcid_details = mongodb_obj.get_PMCID_datums(query, query2, selected_datums, srno_datumid)  # TODO: Analyze whether selected_datums can be replaced by srno_datumid in update_cssfile(pmid)        
+    pmcid_details = mongodb_obj.get_PMCID_datums(query, query2, srno_datumid)  # TODO: Analyze whether selected_datums can be replaced by srno_datumid in update_cssfile(pmid)    
 
     if len(pmcid_details) == 0:
         return 'Your selections did not match any datums. Please try again!'
     else:   
-        create_dict(client_ip, log_assay, log_change, log_subject, log_trtmnt, len(pmcid_details), search_dict)
         ranked_articles = rank_articles(pmcid_details, rankby)
-        query_str = build_string(search_dict); print query_str
-        return template('Search_Results', dict(pmcid_det=ranked_articles), dict(query_str=query_str))
+        return template('Search_Results', dict(pmcid_det=ranked_articles))
         
     #return template('The subject is {{sub}}, the treatment is {{trt}}', sub=assay_phos, trt=change_detunc)
 
@@ -242,7 +216,7 @@ def process_formdata():
 
 @app.get('/articles/<pmc:re:PMC[0-9]*>/<filename>')
 def html_article(pmc, filename):    
-    update_cssfile(pmc)
+    #update_cssfile(pmc)
     rootdir = os.path.join(os.getcwd(), 'static/articles', pmc)
     return static_file(filename, root=rootdir)
     
@@ -257,7 +231,7 @@ def stylesheets(filename):
     return static_file(filename, root='static/css')
 
 
-@app.get('/<filename:re:.*\.(jpg|png|gif|ico|svg)>')
+@app.get('/<filename:re:.*\.(jpg|png|gif|ico)>')
 def images(filename):    
     return static_file(filename, root='static/img')
 
