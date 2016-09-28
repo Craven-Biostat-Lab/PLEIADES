@@ -23,6 +23,7 @@ sys.setdefaultencoding("utf-8")
 from random import shuffle
 
 
+# This method builds a dict with the client ip and the details of the values specified by the user in the homepage of the website. This dict gets used in the "/feedback" method below
 def create_dict(client_ip, log_assay, log_change, log_subject, log_trtmnt, my_dict):
     my_dict["Query"] = {}
     my_dict["Query"]["Client_IP"] = client_ip
@@ -32,6 +33,8 @@ def create_dict(client_ip, log_assay, log_change, log_subject, log_trtmnt, my_di
     my_dict["Query"]["Change"] = log_change
 
 
+# This method will *in future* rank the articles returned by a user query with respect to the level of confidence 
+# the system has on the datums extracted from the articles. As of now this method is just a placeholder and doesnt do much :)
 def rank_articles(pmcid_details, rankby):
     if rankby == "expected":
         pmcid_details = sorted(pmcid_details, key=lambda k: k["Uniq_Datums"], reverse=True)        
@@ -40,6 +43,7 @@ def rank_articles(pmcid_details, rankby):
     return pmcid_details
 
 
+# This method is currently not used. It was written when the interface architecture had a different design.
 def update_cssfile(pmcid):
     # selected_datums is a global variable assigned within the method: process_formdata
     datum_xmlpathid = pickle.load( open( "datum_xmlpathid_dict.p", "rb" ) )
@@ -56,12 +60,14 @@ def update_cssfile(pmcid):
 #app = application = Bottle()
 app = Bottle()
 
+
+# This piece of code is executed when the homepage of the website is opened. This code also creates a folder (for storing user feedback) at the server side using the current time and a unique id assigned to the client, through a cookie
 @app.route('/')     # http://localhost:8080/
 def main_index():
     global fold_path    
     if not request.get_cookie("Visited"):   # If cookie is not created at client end, then create it        
         unique_id = str(uuid.uuid4())
-        response.set_cookie("Visited", unique_id)
+        response.set_cookie("Visited", unique_id)                    #TODO: Cookies that expire after a certain amount of time has passed
         currdate = str(datetime.datetime.date(datetime.datetime.now()))
         response.set_cookie("Time", currdate)         
     else: 
@@ -72,6 +78,7 @@ def main_index():
     return template('Web_UI')
 
 
+# This method accepts the user updates done at the client side and saves them as a JSON file in the server's local directory within a unique folder that gets created when the user first opens the website. The details of the query selected by the user (i.e. the values specified by the user for the different fields in the homepage) is also included in the JSON file.
 @app.post('/feedback')
 def get_feedback():
     jsonstring = request.forms.get('jstring')
@@ -111,7 +118,7 @@ def get_feedback():
 def error404(error):
     return 'Something bad happened. You may try again if you feel adventurous. If not, please contact the webadmin!'
 
-
+# This piece of code gets executed when the user clicks on the "Search" button on the homepage of the website. In this method, I build a MongoDB query from the user-specified values of the 'Change', 'Treatment', 'Assay' and 'Subject' fields. After the MongoDB query is built, I invoke the database script to get back all the datums that match the query. I also log the values specified by the user for the different fields in the homepage for future analysis
 @app.post('/datum') # or @route('/login', method='POST')
 def process_formdata():
     global srno_datumid; global search_dict;
@@ -150,12 +157,12 @@ def process_formdata():
     if subject.strip() == "":         
         no_subj = True; log_subject = ""
     else:
-        subj_ids, subj_syn = mongodb_obj.get_uniprot_ids(subject.lower().strip())
-        if len(subj_ids) == 0:
+        subj_ids, subj_syn = mongodb_obj.get_uniprot_ids(subject.lower().strip())   # Get the UniProtIds of the 'entity' specified in the Subject field. We search the MongoDb using these UniProtIds.
+        if len(subj_ids) == 0:      # If no uniprotid is found for the entity then simply use the string entered by the user in the 'Subject' field
             subj_ids.append(subject.lower().strip())
             query["map.subject.Entity.strings"] = { "$in": subj_ids }
             query2["Datums.map.subject.Entity.strings"] = { "$in": subj_ids }
-        else:
+        else:   # If uniprotids are found for the entity then use both the string entered by the user in the 'Subject' field as well as the uniprotids
             query["map.subject.Entity"] = { "$or": [{"strings": {"$in": subj_syn }}, {"uniprotSym": {"$in": subj_ids }}]}
             query2["Datums.map.subject.Entity"] = { "$or": [{"strings": {"$in": subj_syn }}, {"uniprotSym": {"$in": subj_ids }}]}
         no_subj = False; #print subj_ids
@@ -236,11 +243,13 @@ def images(filename):
     return static_file(filename, root='static/img')
 
 
+# MongoDb connection details
 connection_string = "mongodb://localhost"
 connection = MongoClient(connection_string)
 database = connection.Big_Mechanism
 mongodb_obj = Access_MongoDB.Big_Mech(database)
 
+# Logging details
 logging.config.fileConfig("./logs/logging.conf", disable_existing_loggers=False)
 logger = logging.getLogger(__name__)
 
