@@ -21,6 +21,7 @@ import sys;
 reload(sys)
 sys.setdefaultencoding("utf-8")
 from random import shuffle
+from bson import json_util
 
 
 # This method builds a dict with the client ip and the details of the values specified by the user in the homepage of the website. This dict gets used in the "/feedback" method below
@@ -241,6 +242,60 @@ def stylesheets(filename):
 @app.get('/<filename:re:.*\.(jpg|png|gif|ico)>')
 def images(filename):    
     return static_file(filename, root='static/img')
+
+
+
+
+
+
+@app.get('/articles')
+def get_articles():
+    """
+    Return the first 10 articles from the database as JSON.
+    
+    This resource is used for the screen showing a list of articles.  If we decide
+    to change which articles are shown on the page, we will need to change the query
+    made against the database.
+    """
+
+
+    # Query the database for the first 10 articles in the collection called 'articles'.
+    # Exclude the 'datums' field for each article.
+    top_articles = database.articles.find(limit=10, projection={'Datums':False})
+    
+    # Set headers to tell the browser that this response has JSON.
+    response.headers['Content-Type'] = 'application/json'
+    response.headers['Cache-Control'] = 'no-cache'
+    
+    # Convert the query results into a JSON string, and return it as the response.
+    return json_util.dumps({'articles': list(top_articles)})
+
+
+
+
+@app.get('/articles/<PMCID>')
+def get_article(PMCID):
+    """
+    Return an article from the database with the given PMID, including its datums.
+    """
+
+    # Lookup the article from the database
+    article = database.articles.find_one({'PMCID':PMCID})
+    
+    meta = {}
+    if not article:
+        meta = {'error': 'article not found'}
+
+    # Set headers to tell the browser that this response has JSON.
+    response.headers['Content-Type'] = 'application/json'
+    response.headers['Cache-Control'] = 'no-cache'
+    
+    # Convert the query results into a JSON string, and return it as the response.
+    return json_util.dumps({'article': article, 'meta':meta})
+
+
+
+
 
 
 # MongoDb connection details
