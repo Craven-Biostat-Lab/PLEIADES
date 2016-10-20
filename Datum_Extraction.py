@@ -63,7 +63,7 @@ app = Bottle()
 
 
 # This piece of code is executed when the homepage of the website is opened. This code also creates a folder (for storing user feedback) at the server side using the current time and a unique id assigned to the client, through a cookie
-@app.route('/')     # http://localhost:8080/
+#@app.route('/')     # http://localhost:8080/
 def main_index():
     global fold_path    
     if not request.get_cookie("Visited"):   # If cookie is not created at client end, then create it        
@@ -222,27 +222,46 @@ def process_formdata():
 
 
 
-@app.get('/articles/<pmc:re:PMC[0-9]*>/<filename>')
+@app.get('/articlesHTML/<pmc:re:PMC[0-9]*>/<filename>')
 def html_article(pmc, filename):    
     #update_cssfile(pmc)
     rootdir = os.path.join(os.getcwd(), 'static/articles', pmc)
     return static_file(filename, root=rootdir)
     
 
-@app.get('/<filename:re:.*\.js>')
+#@app.get('/<filename:re:.*\.js>')
 def javascripts(filename):
     return static_file(filename, root='static/js')
 
 
-@app.get('/<filename:re:.*\.css>')
+#@app.get('/<filename:re:.*\.css>')
 def stylesheets(filename):
     return static_file(filename, root='static/css')
 
 
-@app.get('/<filename:re:.*\.(jpg|png|gif|ico)>')
+#@app.get('/<filename:re:.*\.(jpg|png|gif|ico)>')
 def images(filename):    
     return static_file(filename, root='static/img')
 
+
+
+#########################
+# Static files, for node app
+
+
+@app.get('/node_modules/<filename:re:.*>')
+def static_node_modules(filename):
+    return static_file(filename, root='angular-frontend/node_modules')
+
+
+@app.get('/app/<filename:re:.*>')
+def static_app(filename):
+    return static_file(filename, root='angular-frontend/app')
+
+@app.get('/systemjs.config.js')
+def static_bootstrapper():
+    print "foofoo"
+    return static_file('systemjs.config.js', root='angular-frontend')
 
 
 
@@ -296,6 +315,18 @@ def get_article(PMCID):
 
 
 
+# Serve the index page for any URL that is not already designated for something else.
+# This is neccessary for our single-page-application, because there are some URL's that
+# are known only to the browser.
+# This has to be the last URL in this script.
+@app.get('/<url:re:.*>')
+def index_catchall(url):
+    return static_file('index.html', root='angular-frontend')
+
+
+
+
+
 
 
 # MongoDb connection details
@@ -307,6 +338,15 @@ mongodb_obj = Access_MongoDB.Big_Mech(database)
 # Logging details
 logging.config.fileConfig("./logs/logging.conf", disable_existing_loggers=False)
 logger = logging.getLogger(__name__)
+
+
+# Compile angular app, and watch for changes
+import os.path
+import subprocess
+frontend_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'angular-frontend')
+subprocess.Popen('npm run start-noserver', cwd=frontend_path, shell=True)
+
+
 
 
 run(app, reloader=True, host='localhost', port=8080, debug=True)
