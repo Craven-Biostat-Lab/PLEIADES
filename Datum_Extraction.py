@@ -304,6 +304,11 @@ def get_article(PMCID):
     meta = {}
     if not article:
         meta = {'error': 'article not found'}
+    else:
+    
+        # group the datums for the article by treatment entity
+        article['treatmentEntities'] = transform_datums(article['Datums'])
+        del article['Datums']
 
     # Set headers to tell the browser that this response has JSON.
     response.headers['Content-Type'] = 'application/json'
@@ -311,6 +316,93 @@ def get_article(PMCID):
     
     # Convert the query results into a JSON string, and return it as the response.
     return json_util.dumps({'article': article, 'meta':meta})
+
+
+
+
+
+"""
+We need to show the datums on the page grouped by their treatment entity, so this function iterates through the datums
+in an article from the database, and groups them by treatment entity.  Returns a list, with each element structured like a dict element in the comments below.
+"""
+def transform_datums(datums):
+
+
+    """
+    Group datums together by entity.
+    Dict items look like this:
+
+    uniprotID : {
+        'TreatmentEntity': {...},
+        'TreatmentTypes': [
+            {
+                'datum_id': "..."
+                'confidence': "..."
+                'Text': "...",
+                'Hilights': [...]
+            },
+            ...
+        ],
+        'TreatmentTests': [
+            {
+                'datum_id': "..."
+                'confidence': "..."
+                'Text': "...",
+                'Hilights': [...]
+            },
+            ...
+        ],
+    }    
+    
+    """
+    treatmentEntities = dict()
+
+
+
+    for datum in datums:
+        
+        TreatmentEntity = datum['map']['TreatmentEntity']['Entity']
+        UniprotId = TreatmentEntity['UniprotId'][0]
+
+
+        # Do we already have a group for this treatment entity?
+        if UniprotId not in treatmentEntities:
+            treatmentEntities[UniprotId] = {
+                'TreatmentEntity': TreatmentEntity,
+                'TreatmentTypes': [],
+                'TreatmentTests': [],
+            }
+
+
+        # If this datum has a TreatmentType, add it to the TreatmentTypes list for this entity.
+        if 'TreatmentType' in datum['map']:
+        
+            TreatmentType = datum['map']['TreatmentType']
+            TreatmentType['datum_id'] = datum['datum_id']
+            TreatmentType['confidence'] = datum['confidence']
+        
+            treatmentEntities[UniprotId]['TreatmentTypes'].append(TreatmentType)
+            
+        # If this datum has a TreatmentTest, add it to the TreatmentTests list for this entity.
+        if 'TreatmentTest' in datum['map']:
+        
+            TreatmentTest = datum['map']['TreatmentTest']
+            TreatmentTest['datum_id'] = datum['datum_id']
+            TreatmentTest['confidence'] = datum['confidence']
+        
+            treatmentEntities[UniprotId]['TreatmentTests'].append(TreatmentTest)
+            
+
+    for entity in treatmentEntities.values():
+        entity['TreatmentTypes'].sort()
+        entity['TreatmentTests'].sort()
+
+    # convert from dict to list (get rid of UniprotId keys)
+    return treatmentEntities.values()
+
+
+
+
 
 
 
