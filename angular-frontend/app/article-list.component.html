@@ -1,0 +1,8 @@
+<h2>Top articles</h2>
+<ul>
+    <li *ngFor="let article of articles">
+        <b>{{ article.Title }}</b> <br />
+        {{ article.Authors }} <br />
+        <span style="color:#555">{{ article.FullJournalName }}</span>
+    </li>
+</ul>

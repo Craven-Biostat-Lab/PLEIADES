@@ -7,8 +7,10 @@
 !views/*
 !static/
 !static/*
+!angular-frontend
 !angular-frontend/
 !angular-frontend/*
+
 
 
 !datum_evidenceid_dict.p
