@@ -1,3 +1,5 @@
+<article-text [article]="article" [datum]="selectedDatum"></article-text>
+
 <b *ngIf="article"> {{ article.Title }} </b>
 <div *ngIf="article" class="container">
     <div class="row datum-entity-row" *ngFor="let entity of article.treatmentEntities">

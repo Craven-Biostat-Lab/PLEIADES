@@ -253,17 +253,21 @@ def images(filename):
 def static_node_modules(filename):
     return static_file(filename, root='angular-frontend/node_modules')
 
-
 @app.get('/app/<filename:re:.*>')
 def static_app(filename):
     return static_file(filename, root='angular-frontend/app')
 
 @app.get('/systemjs.config.js')
 def static_bootstrapper():
-    print "foofoo"
     return static_file('systemjs.config.js', root='angular-frontend')
 
+@app.get('/article-text/<filename:re:.*>')
+def static_articles(filename):
+    return static_file(filename, root='articles')
 
+@app.get('/static/<filename:re:.*>')
+def static_static(filename):    
+    return static_file(filename, root='static')
 
 
 

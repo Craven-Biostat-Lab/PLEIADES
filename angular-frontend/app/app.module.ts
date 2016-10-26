@@ -7,6 +7,7 @@ import { ArticleService } from './article.service';
 import { AppComponent }  from './app.component';
 import { ArticleListComponent } from './article-list.component';
 import { ArticleDatumsComponent } from './article-datums.component';
+import { ArticleTextComponent } from './article-text.component';
 
 
 import { routing } from './app.routing';
@@ -22,6 +23,7 @@ import { routing } from './app.routing';
     AppComponent,
     ArticleListComponent,
     ArticleDatumsComponent,
+    ArticleTextComponent,
   ],
   
   providers: [ ArticleService ],

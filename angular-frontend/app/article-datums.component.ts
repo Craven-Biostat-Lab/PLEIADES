@@ -6,17 +6,21 @@ import { Location }                 from '@angular/common';
 
 import { Article } from './article';
 import { ArticleService } from './article.service';
+import { Datum } from './datum';
 
 @Component({
     moduleId: module.id,
     selector: 'article-datums',
     templateUrl: 'article-datums.component.html',
+    styleUrls: [ 'article-datums.component.css' ],
 })
 export class ArticleDatumsComponent implements OnInit {
 
     // Currently selected article
     article: Article;
     
+    // Currently selected datum
+    selectedDatum: Datum;    
     
     constructor(
       private articleService: ArticleService,
