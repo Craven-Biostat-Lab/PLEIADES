@@ -1,7 +1,21 @@
-<b> {{ article.Title }} </b>
-<div class="container">
+<b *ngIf="article"> {{ article.Title }} </b>
+<div *ngIf="article" class="container">
     <div class="row datum-entity-row" *ngFor="let entity of article.treatmentEntities">
-        {{ entity.Treatmententity.strings }}
-    
+        <div class="col-md-4 col-entity-string">
+            {{ entity.TreatmentEntity.strings }}
+        </div>
+        
+        <div class="col-md-4 col-treatment-tests">
+            <ul>
+                <li *ngFor="let TreatmentTest of entity.TreatmentTests">{{ TreatmentTest.Text }}</li>
+            </ul>
+        </div>
+        
+        <div class="col-md-4 col-treatment-types">
+            <ul>
+                <li *ngFor="let TreatmentType of entity.TreatmentTypes">{{ TreatmentType.Text }}</li>
+            </ul>
+        </div>
+        
     </div>
 </div>

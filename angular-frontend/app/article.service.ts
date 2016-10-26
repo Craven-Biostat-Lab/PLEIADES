@@ -29,7 +29,7 @@ export class ArticleService {
     
     // Return a single article, including datums
     getArticle(PMCID: string): Promise<Article> {
-        return this.http.get(this.articleUrl + PMCID)
+        return this.http.get(this.articleUrl + '/' + PMCID)
             .toPromise()
             .then(response => response.json().article as Article)
             .catch(this.handleError);
