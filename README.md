@@ -1,7 +1,7 @@
 PLEIADES Extracted Datum Browser
 ================================
 
-Documentation to write
+Documentation still to write
 ------------------------
 - Add a requirements.txt file listing all Python package dependencies.
 - Write some documentation about the database
@@ -10,8 +10,9 @@ Documentation to write
 
 Installation
 -------------------
-Install node.js (latest version).
-CD to angular-frontend folder, and run "npm install" to install required node.js packages.
+- Install node.js (latest version, Ubuntu repository version is too old.).
+- CD to angular-frontend folder, and run "npm install" to install required node.js packages.
+- Copy article HTML files into the "articles" folder.  For the article PMC4055262, the HTML file should be in articles/PMC4055262/PMC4055262.html
 
 
 About the angular2 frontend

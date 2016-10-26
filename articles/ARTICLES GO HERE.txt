@@ -1,0 +1,5 @@
+Articles HTML files and assets should go in this folder.
+
+For the article PMC4055262, the HTML file should be in articles/PMC4055262/PMC4055262.html
+
+If you need to put this folder somewhere else, edit the line that serves static article files in Datum_Extraction.py.
