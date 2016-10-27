@@ -7,11 +7,16 @@
 
     <div id="top-nav">
         <div id="widgets-topleft">
-        
+            <label>Hilight:
+                <div class="btn-group" role="group">
+                    <div class="btn" [class.btn-info]="highlightMode=='add'" [class.btn-default]="highlightMode!='add'" (click)="setHighlightMode('add')"> Add </div>
+                    <div class="btn" [class.btn-info]="highlightMode=='remove'" [class.btn-default]="highlightMode!='remove'" (click)="setHighlightMode('remove')">Remove</div>
+                </div>
+            </label>
         </div>
         <div id="widgets-topright">
-            <button type="button" class="btn btn-default" (click)="goBack()">Back</button>
-            <button class="btn btn-danger">Submit</button>
+            <button type="button" class="btn btn-default" (click)="goBack()">&larr; Back</button>
+            <button class="btn btn-danger" (click)="submit()">Submit</button>
         </div>
     </div>
 

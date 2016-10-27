@@ -31,4 +31,15 @@ export class DatumEditService {
     
     
     
+    
+    
+    // Event stream for highlight mode, an event is fired every time the highlight mode is toggled.
+    private highlightModeSource = new Subject<string>();
+    
+    highlightModeSource$ = this.highlightModeSource.asObservable();
+    
+    setHighlightMode(mode: string): void {
+        this.highlightModeSource.next(mode);
+    }
+    
 }

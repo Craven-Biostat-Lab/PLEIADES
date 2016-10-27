@@ -25,6 +25,9 @@ export class ArticleDatumsComponent implements OnInit {
     // Currently selected datum
     selectedDatum: Datum;    
     
+    // Current hilight mode
+    highlightMode: string = 'add';  // 'add' or 'remove'
+    
     constructor(
       private articleService: ArticleService,
       private route: ActivatedRoute,
@@ -52,9 +55,23 @@ export class ArticleDatumsComponent implements OnInit {
         this.datumEditService.selectDatum(this.selectedDatum);
     }
     
+    
+    // val should be 'add' or 'remove'
+    setHighlightMode(mode: string): void {
+        this.highlightMode = mode;
+        
+        // Notify the datum edit service (and article-text component) that the user has selected a highlight mode
+        this.datumEditService.setHighlightMode(this.highlightMode);
+    }
+    
+    
     goBack(): void{
         if(confirm('Exit without saving your changes?')) {
             this.router.navigate(['/']);
         }
+    }
+    
+    submit(): void{
+        alert('This button doesn\'t do anything yet!');
     }
 }
