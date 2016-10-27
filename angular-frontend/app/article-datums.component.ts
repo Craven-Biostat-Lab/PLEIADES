@@ -8,12 +8,14 @@ import { Router } from '@angular/router';
 import { Article } from './article';
 import { ArticleService } from './article.service';
 import { Datum } from './datum';
+import { DatumEditService } from './datum-edit.service';
 
 @Component({
     moduleId: module.id,
     selector: 'article-datums',
     templateUrl: 'article-datums.component.html',
     styleUrls: [ 'article-datums.component.css' ],
+    providers: [ DatumEditService ],
 })
 export class ArticleDatumsComponent implements OnInit {
 
@@ -28,6 +30,7 @@ export class ArticleDatumsComponent implements OnInit {
       private route: ActivatedRoute,
       private location: Location,
       private router: Router,
+      private datumEditService: DatumEditService,
     ) {}
     
     
@@ -42,8 +45,11 @@ export class ArticleDatumsComponent implements OnInit {
     
     
     selectDatum(datum: any): void {
-        // cast the argument to Datum, we're being a little fast-and-loose with types here
+        // Cast the argument to Datum, we're being a little fast-and-loose with types here.
         this.selectedDatum = datum as Datum;
+        
+        // Notify the datum edit service (and article-text component) that the user has selected a datum.
+        this.datumEditService.selectDatum(this.selectedDatum);
     }
     
     goBack(): void{

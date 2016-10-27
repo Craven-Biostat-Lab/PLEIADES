@@ -274,7 +274,7 @@ def static_static(filename):
 @app.get('/articles')
 def get_articles():
     """
-    Return the first 10 articles from the database as JSON.
+    Return the first 30 articles from the database as JSON.
     
     This resource is used for the screen showing a list of articles.  If we decide
     to change which articles are shown on the page, we will need to change the query
@@ -284,7 +284,7 @@ def get_articles():
 
     # Query the database for the first 10 articles in the collection called 'articles'.
     # Exclude the 'datums' field for each article.
-    top_articles = database.articles.find(limit=10, projection={'Datums':False})
+    top_articles = database.articles.find(limit=30, projection={'Datums':False})
     
     # Set headers to tell the browser that this response has JSON.
     response.headers['Content-Type'] = 'application/json'
