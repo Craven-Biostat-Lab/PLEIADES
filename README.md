@@ -15,6 +15,17 @@ Installation
 - Copy article HTML files into the "articles" folder.  For the article PMC4055262, the HTML file should be in articles/PMC4055262/PMC4055262.html
 
 
+Development
+-----------------
+To run the development server, run "python Datum_Extraction.py debug"
+
+
+Deployment
+----------------
+Before deployment, CD to angular-frontend and run 'npm tsc' to compile TypeScript files.  (This is done automatically by the development server.)
+
+
+
 About the angular2 frontend
 ---------------------------
 When writing code for the front-end, don't modify the .js files in the 'app' folder!  They are automatically generated from the .ts files with the same names, and they will get overwritten.
