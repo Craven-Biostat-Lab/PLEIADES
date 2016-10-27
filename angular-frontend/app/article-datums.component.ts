@@ -66,7 +66,7 @@ export class ArticleDatumsComponent implements OnInit {
     
     
     goBack(): void{
-        if(confirm('Exit without saving your changes?')) {
+        if(!this.datumEditService.anyChanges() || confirm('Exit without saving your changes?')) {
             this.router.navigate(['/']);
         }
     }

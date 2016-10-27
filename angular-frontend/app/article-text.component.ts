@@ -102,11 +102,20 @@ export class ArticleTextComponent implements OnDestroy {
     hltr(): any {
         if (this.textHighlighter) {
             return this.textHighlighter;
-         }
-         else {
-            this.textHighlighter = new TextHighlighter((document.querySelector('iframe#article-frame') as any).contentDocument.body);
+        }
+         
+        else {
+            let frameBody = (document.querySelector('iframe#article-frame') as any).contentDocument.body;
+            
+            this.textHighlighter = new TextHighlighter(frameBody, {
+            
+            
+                onAfterHighlight: () => {
+                    this.datumEditService.markHighlights(this.textHighlighter.serializeHighlights());
+                },
+            });
             return this.textHighlighter;
-         }
+        }
          
     }
     

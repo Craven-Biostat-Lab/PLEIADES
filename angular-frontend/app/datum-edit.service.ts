@@ -42,4 +42,27 @@ export class DatumEditService {
         this.highlightModeSource.next(mode);
     }
     
+    
+    
+    
+    // Mark the edits made by the user in their respective Datum objects, and
+    // keep track of which datums the user has edited.
+    //
+    // Keep a dict like this: {datum_id : {datum info, plus Highlights: [....]}}
+    private datumsWithEdits = {};
+    
+    markHighlights(highlights: string): void {
+        if (this.selectedDatum) {    
+            this.selectedDatum.Highlight = JSON.parse(highlights);
+            this.datumsWithEdits[this.selectedDatum.datum_id] = this.selectedDatum;
+        }
+    }
+    
+    
+    // Return true if the user has made any edits, yet, false otherwise.
+    anyChanges(): boolean {
+        return Object.keys(this.datumsWithEdits).length > 0;
+    }
+    
+    
 }
