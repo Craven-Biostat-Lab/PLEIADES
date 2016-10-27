@@ -1,23 +1,38 @@
-<article-text [article]="article" [datum]="selectedDatum"></article-text>
 
-<b *ngIf="article"> {{ article.Title }} </b>
-<div *ngIf="article" class="container">
-    <div class="row datum-entity-row" *ngFor="let entity of article.treatmentEntities">
-        <div class="col-md-4 col-entity-string">
-            {{ entity.TreatmentEntity.strings }}
-        </div>
+<div id="article-text-pane">
+    <article-text [article]="article" [datum]="selectedDatum"></article-text>
+</div>
+
+<div id="article-datums-pane">
+
+    <div id="top-nav">
+        <div id="widgets-topleft">
         
-        <div class="col-md-4 col-treatment-tests">
-            <ul>
-                <li *ngFor="let TreatmentTest of entity.TreatmentTests">{{ TreatmentTest.Text }}</li>
-            </ul>
         </div>
-        
-        <div class="col-md-4 col-treatment-types">
-            <ul>
-                <li *ngFor="let TreatmentType of entity.TreatmentTypes">{{ TreatmentType.Text }}</li>
-            </ul>
+        <div id="widgets-topright">
+            <button type="button" class="btn btn-default" (click)="goBack()">Back</button>
+            <button class="btn btn-danger">Submit</button>
         </div>
-        
+    </div>
+
+    <div *ngIf="article" class="container-fluid" id="datums-container">
+        <div class="row datum-row" *ngFor="let entity of article.treatmentEntities">
+            <div class="col-md-4 col-entity-string">
+                {{ entity.TreatmentEntity.strings }}
+            </div>
+            
+            <div class="col-md-4 col-treatment-tests">
+                <ul>
+                    <li *ngFor="let TreatmentTest of entity.TreatmentTests" class="btn datum-btn" (click)="selectDatum(TreatmentTest)" [class.datum-btn-selected]="selectedDatum === TreatmentTest">{{ TreatmentTest.Text }}</li>
+                </ul>
+            </div>
+            
+            <div class="col-md-4 col-treatment-types">
+                <ul>
+                    <li *ngFor="let TreatmentType of entity.TreatmentTypes" class="btn datum-btn" (click)="selectDatum(TreatmentType)" [class.datum-btn-selected]="selectedDatum === TreatmentType">{{ TreatmentType.Text }}</li>
+                </ul>
+            </div>
+            
+        </div>
     </div>
 </div>

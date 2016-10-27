@@ -3,6 +3,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { ActivatedRoute, Params }   from '@angular/router';
 import { Location }                 from '@angular/common';
+import { Router } from '@angular/router';
 
 import { Article } from './article';
 import { ArticleService } from './article.service';
@@ -25,7 +26,8 @@ export class ArticleDatumsComponent implements OnInit {
     constructor(
       private articleService: ArticleService,
       private route: ActivatedRoute,
-      private location: Location
+      private location: Location,
+      private router: Router,
     ) {}
     
     
@@ -38,5 +40,15 @@ export class ArticleDatumsComponent implements OnInit {
         });
     }
     
-
+    
+    selectDatum(datum: any): void {
+        // cast the argument to Datum, we're being a little fast-and-loose with types here
+        this.selectedDatum = datum as Datum;
+    }
+    
+    goBack(): void{
+        if(confirm('Exit without saving your changes?')) {
+            this.router.navigate(['/']);
+        }
+    }
 }

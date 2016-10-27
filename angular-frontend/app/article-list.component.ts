@@ -8,14 +8,15 @@ import { ArticleService } from './article.service';
 @Component({
     moduleId: module.id,
     selector: 'article-list',
-    templateUrl: 'article-list.component.html'
+    templateUrl: 'article-list.component.html',
+    styleUrls: ['article-list.component.css'],
 })
 
 export class ArticleListComponent implements OnInit {
     articles: Article[];
 
 
-    constructor(private articleService: ArticleService /*, private router: Router*/) {}
+    constructor(private articleService: ArticleService, private router: Router) {}
 
     getArticles(): void {
         this.articleService.getArticles().then(articles => this.articles = articles);
@@ -24,5 +25,9 @@ export class ArticleListComponent implements OnInit {
     ngOnInit(): void {
         this.getArticles();
         console.log(this.articles);
+    }
+    
+    gotoArticle(article: Article) {
+        this.router.navigate(['/article-datums', article.PMCID]);
     }
 }
