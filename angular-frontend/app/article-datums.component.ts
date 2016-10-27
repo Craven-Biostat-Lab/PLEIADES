@@ -37,6 +37,7 @@ export class ArticleDatumsComponent implements OnInit {
     ) {}
     
     
+    // Load the article JSON from the server when the component initiates
     ngOnInit(): void {
         this.route.params.forEach((params: Params) => {
             let PMCID = params['PMCID'];
@@ -44,9 +45,14 @@ export class ArticleDatumsComponent implements OnInit {
                 .then(article => this.article = article);
             // TODO: do something if there is an error, like the PMCID doesn't exist
         });
+        
+        // Set timestamp of article open
+        this.datumEditService.setArticleOpenTime();
+
     }
     
     
+    // Called when the user clicks a button to select a datum
     selectDatum(datum: any): void {
         // Cast the argument to Datum, we're being a little fast-and-loose with types here.
         this.selectedDatum = datum as Datum;
@@ -65,13 +71,16 @@ export class ArticleDatumsComponent implements OnInit {
     }
     
     
+    
     goBack(): void{
         if(!this.datumEditService.anyChanges() || confirm('Exit without saving your changes?')) {
             this.router.navigate(['/']);
         }
     }
     
+    
     submit(): void{
-        alert('This button doesn\'t do anything yet!');
+        this.datumEditService.submitEdits(this.article.PMCID);
+        this.router.navigate(['/']);
     }
 }

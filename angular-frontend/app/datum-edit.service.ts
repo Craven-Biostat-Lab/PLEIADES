@@ -6,13 +6,17 @@
 
 
 import { Injectable } from '@angular/core';
-
+import { Headers, Http } from '@angular/http';
 import { Subject }    from 'rxjs/Subject';
+import 'rxjs/add/operator/toPromise';
 
 import { Datum } from './datum';
 
 @Injectable()
 export class DatumEditService {
+
+    constructor(private http: Http) {}
+
 
     // Currently selected datum
     private selectedDatum: Datum;
@@ -64,5 +68,49 @@ export class DatumEditService {
         return Object.keys(this.datumsWithEdits).length > 0;
     }
     
+    
+    
+    
+    // Record when the user opens the article
+    private articleOpenTime: number;
+    setArticleOpenTime(): void {
+        this.articleOpenTime = Date.now();
+    }
+    
+    
+    
+    
+    // Send the edited datums with highlights to the server, via an HTTP PUT with a JSON payload.
+    submitEdits(articlePMCID: string): void {
+    
+        // Only submit if the user has made some edits.
+        if (this.anyChanges()) {
+    
+            let url = '/datums';
+            let headers = new Headers({'Content-Type': 'application/json'});
+        
+            // Convert datumsWithEdits to an array, get rid of dictionary keys
+            let datums = Object.keys(this.datumsWithEdits).map(datum_id => this.datumsWithEdits[datum_id]);
+        
+            /*
+            console.log('Submitting hilights');
+            console.log(datums);
+            */
+        
+            // Make an HTTP PUT to the back-end
+            this.http.put(
+                url, 
+                JSON.stringify({
+                    articleOpenTime: this.articleOpenTime,
+                    submitTime: Date.now(),
+                    datums: datums,
+                    PMCID: articlePMCID,
+                    }),
+                {headers: headers}
+            ).toPromise()
+            .then(response => null); // don't do anything with the response (in a perfect world with infinite time, this should do some error handling.)
+            
+        }
+    }
     
 }

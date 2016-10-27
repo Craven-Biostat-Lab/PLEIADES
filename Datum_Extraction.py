@@ -3,7 +3,7 @@
 
 from bottle import Bottle, run
 from bottle import template
-from bottle import get, post, request, response, static_file
+from bottle import get, put, post, request, response, static_file
 from bottle import error
 from bottle import redirect
 import logging
@@ -311,7 +311,7 @@ def get_article(PMCID):
     else:
     
         # group the datums for the article by treatment entity
-        article['treatmentEntities'] = transform_datums(article['Datums'])
+        article['treatmentEntities'] = group_by_entity(article['Datums'])
         del article['Datums']
 
     # Set headers to tell the browser that this response has JSON.
@@ -329,7 +329,7 @@ def get_article(PMCID):
 We need to show the datums on the page grouped by their treatment entity, so this function iterates through the datums
 in an article from the database, and groups them by treatment entity.  Returns a list, with each element structured like a dict element in the comments below.
 """
-def transform_datums(datums):
+def group_by_entity(datums):
 
 
     """
@@ -343,7 +343,8 @@ def transform_datums(datums):
                 'datum_id': "..."
                 'confidence': "..."
                 'Text': "...",
-                'Hilights': [...]
+                'Hilights': [...],
+                'Entity_string': string,
             },
             ...
         ],
@@ -352,7 +353,8 @@ def transform_datums(datums):
                 'datum_id': "..."
                 'confidence': "..."
                 'Text': "...",
-                'Hilights': [...]
+                'Hilights': [...],
+                'Entity_string': string,
             },
             ...
         ],
@@ -384,6 +386,7 @@ def transform_datums(datums):
             TreatmentType = datum['map']['TreatmentType']
             TreatmentType['datum_id'] = datum['datum_id']
             TreatmentType['confidence'] = datum['confidence']
+            TreatmentType['Entity_string'] = TreatmentEntity['strings']
         
             treatmentEntities[UniprotId]['TreatmentTypes'].append(TreatmentType)
             
@@ -393,6 +396,7 @@ def transform_datums(datums):
             TreatmentTest = datum['map']['TreatmentTest']
             TreatmentTest['datum_id'] = datum['datum_id']
             TreatmentTest['confidence'] = datum['confidence']
+            TreatmentTest['Entity_string'] = TreatmentEntity['strings']
         
             treatmentEntities[UniprotId]['TreatmentTests'].append(TreatmentTest)
             
@@ -404,6 +408,43 @@ def transform_datums(datums):
     # convert from dict to list (get rid of UniprotId keys)
     return treatmentEntities.values()
 
+
+
+
+
+
+
+
+@app.put('/datums')
+def put_datums():
+    
+    # Insert a record into the 'user_edits' collection
+    insert_user_submission(request.json)
+
+    
+    return '200 OK'
+
+
+
+
+def insert_user_submission(json):
+    
+    treatments = {}
+    
+    for datum in json['datums']:
+        
+        if datum['Text'] not in treatments:
+            treatments[datum['Text']] = {}
+            
+        treatments[datum['Text']][datum['Entity_string']] = datum['Highlight']
+        
+    database.user_edits.insert_one({
+        'articleOpenTime': json['articleOpenTime'],
+        'submitTime': json['submitTime'],
+        'PMCID': json['PMCID'],
+        'client_ip': request.environ.get('REMOTE_ADDR'),
+        'treatments': treatments,
+    })
 
 
 
