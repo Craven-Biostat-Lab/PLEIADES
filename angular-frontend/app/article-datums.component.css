@@ -1,0 +1,75 @@
+#article-text-pane {
+    height: 100%;
+    width: 50%;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+#article-datums-pane {
+    height: 100%;
+    width: 50%;
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+
+
+#top-nav {
+    margin:20px;
+    position: relative;
+    height: 60px;
+}
+
+#widgets-topleft {
+    position: absolute;
+    display: inline-block;
+    left: 0;
+    top: 0;
+}
+
+#widgets-topright {
+    position: absolute;
+    display: inline-block;
+    right: 0;
+    top: 0;
+}
+
+
+
+.datum-row {
+    background: #e8f5fb;
+    padding: 10px;
+    margin: 10px;
+    border-radius: 5px;
+}
+
+.col-entity-string {
+    font-size: 140%;
+    font-weight: bold;
+}
+
+
+.datum-btn {
+    color: #fff;
+    background-color: #337ab7;
+    border-color: #2e6da4;
+}
+
+.datum-btn:hover {
+    color: #fff;
+    background-color: #286090;
+    border-color: #204d74;
+}
+
+.datum-btn.datum-btn-selected {
+    color: #fff;
+    background-color: #f0ad4e;
+    border-color: #eea236;
+}
+
+.datum-btn.datum-btn-selected:hover {
+    color: #fff;
+    background-color: #ec971f;
+    border-color: #d58512;
+}
