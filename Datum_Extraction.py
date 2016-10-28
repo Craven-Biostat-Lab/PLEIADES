@@ -2,24 +2,17 @@
 # -*- coding: utf-8 -*-
 
 from bottle import Bottle, run
-from bottle import template
-from bottle import get, put, post, request, response, static_file
+from bottle import get, put, request, response, static_file
 from bottle import error
-from bottle import redirect
 import logging
 import logging.config
-from pprint import pprint
 from pymongo import MongoClient
 import pymongo
-import uuid
 import json
 import os
-import pickle, datetime
-import fileinput
 import sys;
 reload(sys)
 sys.setdefaultencoding("utf-8")
-from random import shuffle
 from bson import json_util
 
 
@@ -90,11 +83,14 @@ def get_article(PMCID):
 
 
 
-"""
-We need to show the datums on the page grouped by their treatment entity, so this function iterates through the datums
-in an article from the database, and groups them by treatment entity.  Returns a list, with each element structured like a dict element in the comments below.
-"""
+
 def group_by_entity(datums):
+    """
+    We need to show the datums on the page grouped by their treatment entity, 
+    so this function iterates through the datums in an article from the database, a
+    nd groups them by treatment entity.  Returns a list, with each element structured 
+    like a dict element in the comments below.
+    """
 
 
     """
@@ -186,6 +182,9 @@ def put_datums():
     # Insert a record into the 'user_edits' collection
     insert_user_submission(request.json)
 
+
+    # TODO: update the in-place database object that the website loads the highlights from
+
     
     return '200 OK'
 
@@ -259,6 +258,7 @@ def static_static(filename):
 # Serve the index page for any URL that is not already designated for something else.
 # This is neccessary for our single-page-application, because there are some URL's that
 # are known only to the browser.
+
 # This has to be the last URL in this script.
 @app.get('/<url:re:.*>')
 def index_catchall(url):
@@ -280,11 +280,12 @@ logging.config.fileConfig("./logs/logging.conf", disable_existing_loggers=False)
 logger = logging.getLogger(__name__)
 
 
-from sys import argv
+
 
 
 # In debug mode, compile the angular app, and watch for changes
 # (Otherwise assume the angular app is already compiled.)
+from sys import argv
 if len(argv) > 1 and argv[1] == 'debug':
     import os.path
     import subprocess
