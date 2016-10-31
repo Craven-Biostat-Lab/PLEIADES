@@ -1,4 +1,4 @@
-PLEIADES Extracted Datum Browser
+PLEIADES Back-end
 ================================
 
 Documentation still to write
@@ -14,18 +14,44 @@ Create a db Big_Mechanism
 Dump this file into a collection called 'articles':
 /ua/ml-group/big-mechanism-project/PLEIADES/Sep2016_SMA/Datums_MongoDB_OpenAccess.json
 
-Create an empty collection called 'user_edits', where data submissions from the client will be recorded.
+Like so:
+mongoimport --db Big_Mechanism --collection articles --file Datums_MongoDB_OpenAccess.json --maintainInsertionOrder --jsonArray
+
+
+Create an 2 collections called 'user_edits' and 'user_edits_incremental', where data submissions from the client will be recorded.
+
+(in mongo shell)
+use Big_Mechanism;
+db.createCollection('user_edits');
+db.createCollection('user_edits_incremental');
+
+
+
+Separate front-end repository
+-------------------------------
+The front-end of this app is in a separate repository, which you can find here:
+https://github.com/Craven-Biostat-Lab/PLEIADES-frontend.git
+
+For development, clone the repository into a folder called "frontend" in the root of this repository, like so:
+git clone https://github.com/Craven-Biostat-Lab/PLEIADES-frontend.git frontend
+
+The bottle server will serve static files from the front-end in debug mode.  
+
+For deployment, you have to set up the static files to be served from the web server.  Put the front-end repository wherever your heart desires.
 
 
 
 Installation
 -------------------
+- Set up the front-end (see above)
 - Install node.js (latest version, Ubuntu repository version is too old.).
-- CD to angular-frontend folder, and run "npm install" to install required node.js packages.
+- CD to the frontend folder, and run "npm install" to install required node.js packages.
 - Copy article HTML files into the "articles" folder.  For the article PMC4055262, the HTML file should be in articles/PMC4055262/PMC4055262.html
 
 Look for articles in this folder:
 /ua/ml-group/big-mechanism-project/PLEIADES/Sep2016_SMA/downloaded_articles
+
+
 
 
 Development
@@ -33,9 +59,30 @@ Development
 To run the development server, run "python Datum_Extraction.py debug"
 
 
+
 Deployment
 ----------------
-Before deployment, CD to angular-frontend and run 'npm tsc' to compile TypeScript files.  (This is done automatically by the development server.)
+Before deployment, CD to the front-end repo and run 'npm tsc' to compile TypeScript files.  (This is done automatically by the development server.)
+
+Calls to the back-end API are prefixed with the version number 'v1/'.  Direct traffic previxed with 'v1/' to the bottle application.
+
+
+
+Routes
+----------------
+In debug mode, static routes are handled by the bottle script.  In deployment, they have to be handled by the webserver.  
+
+/v1     goes to the bottle app
+/article-text    serves static files from the 'articles' folder.  (This route is only known to the front-end, the back-end doesn't do anything with it.)
+/    root should serve static files from the root of the front-end
+(catchall) any routes not matching any files in the front-end should serve index.html
+
+
+
+Gotchas
+-----------
+Because of the way the development virtual machine is set up, the .gitignore file for this repo uses a whitelist instead of a blacklist.  If git is not automatically tracking your new files, this is why.  (No need to scold me about this, Chris, I'm already sufficiently ashamed.)
+
 
 
 

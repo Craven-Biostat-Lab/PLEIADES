@@ -21,6 +21,12 @@ from bson import json_util
 app = Bottle()
 
 
+# Use 'debug mode' if the 1st command-line argument is 'debug'
+from sys import argv
+debug = len(argv) > 1 and argv[1] == 'debug'
+
+# Use the URL prefix 'v1' if in debug mode.  (In deployment, this will be already done by the server.)
+url_prefix = '/v1' if debug else ''
 
 
 @app.error(404)
@@ -29,7 +35,7 @@ def error404(error):
 
 
 
-@app.get('/articles')
+@app.get(url_prefix + '/articles')
 def get_articles():
     """
     Return the first 30 articles from the database as JSON.
@@ -54,7 +60,7 @@ def get_articles():
 
 
 
-@app.get('/articles/<PMCID>')
+@app.get(url_prefix + '/articles/<PMCID>')
 def get_article(PMCID):
     """
     Return an article from the database with the given PMID, including its datums.
@@ -176,7 +182,7 @@ def group_by_entity(datums):
 
 
 
-@app.put('/datums')
+@app.put(url_prefix + '/datums')
 def put_datums():
     
     # Insert a record into the 'user_edits_incremental' collection
@@ -264,47 +270,6 @@ def update_user_edits(json):
 
 
 
-#########################
-# Static files, for node app
-
-
-@app.get('/node_modules/<filename:re:.*>')
-def static_node_modules(filename):
-    return static_file(filename, root='angular-frontend/node_modules')
-
-@app.get('/app/<filename:re:.*>')
-def static_app(filename):
-    return static_file(filename, root='angular-frontend/app')
-
-@app.get('/systemjs.config.js')
-def static_bootstrapper():
-    return static_file('systemjs.config.js', root='angular-frontend')
-
-@app.get('/article-text/<filename:re:.*>')
-def static_articles(filename):
-    return static_file(filename, root='articles')
-
-@app.get('/static/<filename:re:.*>')
-def static_static(filename):    
-    return static_file(filename, root='static')
-
-
-
-
-
-
-
-# Serve the index page for any URL that is not already designated for something else.
-# This is neccessary for our single-page-application, because there are some URL's that
-# are known only to the browser.
-
-# This has to be the last URL in this script.
-@app.get('/<url:re:.*>')
-def index_catchall(url):
-    return static_file('index.html', root='angular-frontend')
-
-
-
 
 
 
@@ -324,12 +289,50 @@ logger = logging.getLogger(__name__)
 
 # In debug mode, compile the angular app, and watch for changes
 # (Otherwise assume the angular app is already compiled.)
-from sys import argv
-if len(argv) > 1 and argv[1] == 'debug':
+if debug:
     import os.path
     import subprocess
-    frontend_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'angular-frontend')
+    frontend_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'frontend')
     subprocess.Popen('npm run start-noserver', cwd=frontend_path, shell=True)
+
+
+
+    # Static files, for node app
+    # In deployment, this is handled by the server.
+
+    @app.get('/node_modules/<filename:re:.*>')
+    def static_node_modules(filename):
+        return static_file(filename, root='frontend/node_modules')
+
+    @app.get('/app/<filename:re:.*>')
+    def static_app(filename):
+        return static_file(filename, root='frontend/app')
+
+    @app.get('/systemjs.config.js')
+    def static_bootstrapper():
+        return static_file('systemjs.config.js', root='frontend')
+
+    @app.get('/article-text/<filename:re:.*>')
+    def static_articles(filename):
+        return static_file(filename, root='articles')
+
+    @app.get('/static/<filename:re:.*>')
+    def static_static(filename):    
+        return static_file(filename, root='static')
+
+
+
+
+    # Serve the index page for any URL that is not already designated for something else.
+    # This is neccessary for our single-page-application, because there are some URL's that
+    # are known only to the browser.
+
+    # This has to be the last URL in this script.
+    @app.get('/<url:re:.*>')
+    def index_catchall(url):
+        return static_file('index.html', root='frontend')
+
+
 
 
 
