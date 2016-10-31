@@ -7,9 +7,11 @@
 !views/*
 !static/
 !static/*
-!angular-frontend
-!angular-frontend/
-!angular-frontend/*
+
+
+# include frontend folder as a stub, but not its contents
+!frontend/
+frontend/*
 
 
 
