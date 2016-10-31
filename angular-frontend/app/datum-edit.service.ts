@@ -10,6 +10,7 @@ import { Headers, Http } from '@angular/http';
 import { Subject }    from 'rxjs/Subject';
 import 'rxjs/add/operator/toPromise';
 
+import { Article } from './article';
 import { Datum } from './datum';
 
 @Injectable()
@@ -81,7 +82,7 @@ export class DatumEditService {
     
     
     // Send the edited datums with highlights to the server, via an HTTP PUT with a JSON payload.
-    submitEdits(articlePMCID: string): void {
+    submitEdits(article: Article): void {
     
         // Only submit if the user has made some edits.
         if (this.anyChanges()) {
@@ -104,7 +105,8 @@ export class DatumEditService {
                     articleOpenTime: this.articleOpenTime,
                     submitTime: Date.now(),
                     datums: datums,
-                    PMCID: articlePMCID,
+                    PMCID: article.PMCID,
+                    PMID:  article.PMID,
                     }),
                 {headers: headers}
             ).toPromise()

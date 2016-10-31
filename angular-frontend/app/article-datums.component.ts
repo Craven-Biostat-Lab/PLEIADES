@@ -80,7 +80,7 @@ export class ArticleDatumsComponent implements OnInit {
     
     
     submit(): void{
-        this.datumEditService.submitEdits(this.article.PMCID);
+        this.datumEditService.submitEdits(this.article);
         this.router.navigate(['/']);
     }
 }

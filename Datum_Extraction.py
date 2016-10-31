@@ -179,9 +179,12 @@ def group_by_entity(datums):
 @app.put('/datums')
 def put_datums():
     
-    # Insert a record into the 'user_edits' collection
-    insert_user_submission(request.json)
+    # Insert a record into the 'user_edits_incremental' collection
+    insert_user_edits_incremental(request.json)
 
+    # Update the flat 'user_edits' collection, which has the aggregate of all edits from all users.
+    update_user_edits(request.json)
+    
 
     # TODO: update the in-place database object that the website loads the highlights from
 
@@ -191,9 +194,9 @@ def put_datums():
 
 
 
-def insert_user_submission(json):
+def insert_user_edits_incremental(json):
     """
-    Insert the user-submitted edits as a document in the 'user_edits' collection.
+    Insert the user-submitted edits as a document in the 'user_edits_incremental' collection.
     
     Nest the hilights like:
     'treatments' -> treatment text -> protein/entity -> serialized highlight array.
@@ -209,9 +212,10 @@ def insert_user_submission(json):
             
         treatments[datum['Text']][datum['Entity_string']] = datum['Highlight']
         
-    database.user_edits.insert_one({
+    database.user_edits_incremental.insert_one({
         'articleOpenTime': json['articleOpenTime'],
         'submitTime': json['submitTime'],
+        'PMID': json['PMID'],
         'PMCID': json['PMCID'],
         'client_ip': request.environ.get('REMOTE_ADDR'),
         'treatments': treatments,
@@ -220,6 +224,41 @@ def insert_user_submission(json):
 
 
 
+
+def update_user_edits(json):
+    """
+    Update the user_edits collection, which keeps track of the aggregate of all edits made by the user.
+    """
+
+    for datum in json['datums']:
+    
+        database.user_edits.update(
+            
+            # Find matching element
+            {
+                json['PMID']: {
+                    datum['Text']: {
+                        datum['Entity_string'] : '$exists'
+                    }
+                }   
+            },
+            
+            # Update hilight and timestamp
+            {
+                '$set': {
+                    '{0}.{1}.{2}'.format(json['PMID'], datum['Text'], datum['Entity_string']) : {
+                        'HighlightObject': datum['Highlight'],
+                        'Timestamp': json['submitTime'],
+                    }
+                }
+            },
+            
+            # Create a matching element if none exists already
+            upsert=True
+        )
+
+    
+#db.user_edits.update({'PMID123': {'RNAi': {'Protein1': '$exists'}}}, {'$set':{'PMID123.RNAi.Protein1': {'foo':1}}}, upsert=True)
 
 
 
