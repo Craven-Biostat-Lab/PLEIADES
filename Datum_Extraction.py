@@ -336,9 +336,6 @@ if debug:
         return static_file('index.html', root=debug_frontend_path)
 
 
+    run(app, reloader=True, host='localhost', port=8080, debug=True)
 
-
-
-
-run(app, reloader=True, host='localhost', port=8080, debug=True)
-
+    
