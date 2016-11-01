@@ -73,10 +73,10 @@ Routes
 ----------------
 In debug mode, static routes are handled by the bottle script.  In deployment, they have to be handled by the webserver.  
 
-/api/v01     goes to the bottle app
-/article-text    serves static files from the 'articles' folder.  (This route is only known to the front-end, the back-end doesn't do anything with it.)
-/    root should serve static files from the root of the front-end
-(catchall) any routes not matching any files in the front-end should serve index.html
+- /api/v01     goes to the bottle app.  (Bottle should still see this prefix in the request URL's that it gets.)
+- /article-text    serves static files from the 'articles' folder.  (This route is only known to the front-end, the back-end doesn't do anything with it.)
+- /    root should serve static files from the root of the front-end
+- (catchall) any routes not matching any files in the front-end should serve index.html
 
 
 
