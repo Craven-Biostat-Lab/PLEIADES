@@ -26,8 +26,8 @@ app = Bottle()
 from sys import argv
 debug = len(argv) > 1 and argv[1] == 'debug'
 
-# Use the URL prefix 'v1' if in debug mode.  (In deployment, this will be already done by the server.)
-url_prefix = '/v1' if debug else ''
+# Use the URL prefix 'v01' if in debug mode.  (In deployment, this will be already done by the server.)
+url_prefix = '/api/v01' if debug else ''
 
 # Path to the front-end repository in debug-mode/development.  (This isn't used in deployment.)
 debug_frontend_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'PLEIADES-frontend')
