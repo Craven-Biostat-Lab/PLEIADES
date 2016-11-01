@@ -32,8 +32,9 @@ Separate front-end repository
 The front-end of this app is in a separate repository, which you can find here:
 https://github.com/Craven-Biostat-Lab/PLEIADES-frontend.git
 
-For development, clone the repository into a folder called "frontend" in the root of this repository, like so:
-git clone https://github.com/Craven-Biostat-Lab/PLEIADES-frontend.git frontend
+For development, clone the repository into a folder called "PLEIADES-frontend" one level up from Datum_Extraction.py, like so:
+# From the root directory of the back-end repository, the same folder with Datum_Extraction.py
+git clone https://github.com/Craven-Biostat-Lab/PLEIADES-frontend.git ../PLEIADES-frontend
 
 The bottle server will serve static files from the front-end in debug mode.  
 
@@ -43,10 +44,10 @@ For deployment, you have to set up the static files to be served from the web se
 
 Installation
 -------------------
-- Set up the front-end (see above)
+- Clone the front-end repository (see above)
 - Install node.js (latest version, Ubuntu repository version is too old.).
 - CD to the frontend folder, and run "npm install" to install required node.js packages.
-- Copy article HTML files into the "articles" folder.  For the article PMC4055262, the HTML file should be in articles/PMC4055262/PMC4055262.html
+- Copy article HTML files into the "articles" folder.  For the article PMC4055262, the HTML file should be in articles/PMC4055262/PMC4055262.html.  (For deployment, the HTML articles can go anywhere, not neccesarily into this directory, as long as the route is set correctly by the web server.  See the 'routes' section below.)
 
 Look for articles in this folder:
 /ua/ml-group/big-mechanism-project/PLEIADES/Sep2016_SMA/downloaded_articles

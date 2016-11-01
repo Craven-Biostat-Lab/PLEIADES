@@ -10,6 +10,7 @@ from pymongo import MongoClient
 import pymongo
 import json
 import os
+import os.path
 import sys;
 reload(sys)
 sys.setdefaultencoding("utf-8")
@@ -27,6 +28,10 @@ debug = len(argv) > 1 and argv[1] == 'debug'
 
 # Use the URL prefix 'v1' if in debug mode.  (In deployment, this will be already done by the server.)
 url_prefix = '/v1' if debug else ''
+
+# Path to the front-end repository in debug-mode/development.  (This isn't used in deployment.)
+debug_frontend_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'PLEIADES-frontend')
+
 
 
 @app.error(404)
@@ -290,10 +295,8 @@ logger = logging.getLogger(__name__)
 # In debug mode, compile the angular app, and watch for changes
 # (Otherwise assume the angular app is already compiled.)
 if debug:
-    import os.path
     import subprocess
-    frontend_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'frontend')
-    subprocess.Popen('npm run start-noserver', cwd=frontend_path, shell=True)
+    subprocess.Popen('npm run start-noserver', cwd=debug_frontend_path, shell=True)
 
 
 
@@ -302,15 +305,15 @@ if debug:
 
     @app.get('/node_modules/<filename:re:.*>')
     def static_node_modules(filename):
-        return static_file(filename, root='frontend/node_modules')
+        return static_file(filename, root=os.path.join(debug_frontend_path,'node_modules'))
 
     @app.get('/app/<filename:re:.*>')
     def static_app(filename):
-        return static_file(filename, root='frontend/app')
+        return static_file(filename, root=os.path.join(debug_frontend_path, 'app'))
 
     @app.get('/systemjs.config.js')
     def static_bootstrapper():
-        return static_file('systemjs.config.js', root='frontend')
+        return static_file('systemjs.config.js', root=debug_frontend_path)
 
     @app.get('/article-text/<filename:re:.*>')
     def static_articles(filename):
@@ -318,7 +321,7 @@ if debug:
 
     @app.get('/static/<filename:re:.*>')
     def static_static(filename):    
-        return static_file(filename, root='frontend/static')
+        return static_file(filename, root=os.path.join(debug_frontend_path, 'static'))
 
 
 
@@ -330,7 +333,7 @@ if debug:
     # This has to be the last URL in this script.
     @app.get('/<url:re:.*>')
     def index_catchall(url):
-        return static_file('index.html', root='frontend')
+        return static_file('index.html', root=debug_frontend_path)
 
 
 
