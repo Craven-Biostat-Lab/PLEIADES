@@ -1,4 +1,4 @@
-:
+
 *
 !.gitignore
 !Access_MongoDB.py
@@ -8,12 +8,6 @@
 !views/*
 !static/
 !static/*
-
-
-# include frontend folder as a stub, but not its contents
-!frontend/
-frontend/*
-
 
 
 !datum_evidenceid_dict.p

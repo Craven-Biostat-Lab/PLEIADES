@@ -318,7 +318,7 @@ if debug:
 
     @app.get('/static/<filename:re:.*>')
     def static_static(filename):    
-        return static_file(filename, root='static')
+        return static_file(filename, root='frontend/static')
 
 
 
