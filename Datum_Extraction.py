@@ -246,11 +246,9 @@ def update_user_edits(json):
             
             # Find matching element
             {
-                json['PMID']: {
-                    datum['Text']: {
-                        datum['Entity_string'] : '$exists'
-                    }
-                }   
+                '{0}.{1}.{2}'.format(json['PMID'], datum['Text'], datum['Entity_string'])
+                :
+                {'$exists' : True}
             },
             
             # Update hilight and timestamp
