@@ -188,6 +188,9 @@ def group_by_entity(datums):
 
 @app.put(url_prefix + '/datums')
 def put_datums():
+    """
+    Process user feedback when the user submits edits to an article.
+    """
     
     # Insert a record into the 'user_edits_incremental' collection
     insert_user_edits_incremental(request.json)
@@ -195,11 +198,15 @@ def put_datums():
     # Update the flat 'user_edits' collection, which has the aggregate of all edits from all users.
     update_user_edits(request.json)
     
-
-    # TODO: update the in-place database object that the website loads the highlights from
-
+    # Update the in-place article document in the database, 
+    # so the user will see their changes the next time they load the article.
+    # This also saves the timestamp of the last edit.
+    update_articles(request.json)
     
     return '200 OK'
+
+
+
 
 
 
@@ -227,9 +234,12 @@ def insert_user_edits_incremental(json):
         'submitTime': json['submitTime'],
         'PMID': json['PMID'],
         'PMCID': json['PMCID'],
-        'client_ip': request.environ.get('REMOTE_ADDR'),
+        'clientIP': request.environ.get('REMOTE_ADDR'),
         'treatments': treatments,
     })
+
+
+
 
 
 
@@ -242,7 +252,7 @@ def update_user_edits(json):
 
     for datum in json['datums']:
     
-        database.user_edits.update(
+        database.user_edits.update_one(
             
             # Find matching element
             {
@@ -265,10 +275,43 @@ def update_user_edits(json):
             upsert=True
         )
 
+
+
+
+
+
+
+
+def update_articles(json):
+    """
+    Over-write the hilights for the article document in the 'articles' collection,
+    so the user will see their changes the next time they load the article.
     
-#db.user_edits.update({'PMID123': {'RNAi': {'Protein1': '$exists'}}}, {'$set':{'PMID123.RNAi.Protein1': {'foo':1}}}, upsert=True)
+    This also saves the timestamp of the last edit.
+    """
+    
+    
+    # Find the article in the database that matches the article edited by the user.
+    article = database.articles.find_one({'PMCID': json['PMCID']})
+    
+    # Save last-updated timestamp.
+    article[u'lastUpdated'] = json['submitTime']
+    
+    # For each of the datums that the user edited:
+    for json_datum in json['datums']:
+    
+        # Find the datum in the datase that matches the datum in user input, using datum_id
+        matching_db_datum = filter(lambda d: d['datum_id'] == json_datum['datum_id'], article['Datums'])[0]
+    
+        # Overwrite the highlights in the database
+        if   'TreatmentTest' in matching_db_datum['map']:
+            matching_db_datum['map']['TreatmentTest']['Highlight'] = json_datum['Highlight']
+        elif 'TreatmentType' in matcihng_datum['map']:
+            matching_db_datum['map']['TreatmentType']['Highlight'] = json_datum['Highlight']
 
 
+    # Save the updated in the article
+    database.articles.replace_one({'_id': article['_id']}, article)
 
 
 
@@ -284,6 +327,8 @@ database = connection.Big_Mechanism
 # Logging details
 #logging.config.fileConfig("./logs/logging.conf", disable_existing_loggers=False)
 #logger = logging.getLogger(__name__)
+
+
 
 
 
