@@ -1,6 +1,19 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+
+"""
+This script contains the Bottle script for the back-end of PLEIADES.
+
+It contains code for API calls that interact with the database, to 
+return database queries as JSON and process user submission of datums.
+
+If you run this script with a "debug" argument, like "python Datum_Extraction.py debug",
+the script will run a development server on your local machine, and start a subprocess
+that compiles the angular app watches for changes.  For deployment, omit the "debug" flag.
+"""
+
+
 from bottle import Bottle, run
 from bottle import get, put, request, response, static_file
 from bottle import error
@@ -26,6 +39,7 @@ app = Bottle()
 from sys import argv
 debug = len(argv) > 1 and argv[1] == 'debug'
 
+# Prefix of data API URL's.  
 url_prefix = '/api/v01'
 
 # Path to the front-end repository in debug-mode/development.  (This isn't used in deployment.)
@@ -50,7 +64,7 @@ def get_articles():
     """
 
 
-    # Query the database for the first 10 articles in the collection called 'articles'.
+    # Query the database for the first 30 articles in the collection called 'articles'.
     # Exclude the 'datums' field for each article.
     top_articles = database.articles.find(limit=30, projection={'Datums':False})
     
@@ -376,6 +390,8 @@ if debug:
     @app.get('/<url:re:.*>')
     def index_catchall(url):
         return static_file('index.html', root=debug_frontend_path)
+
+
 
 
     run(app, reloader=True, host='localhost', port=8080, debug=True)
