@@ -1,6 +1,9 @@
 PLEIADES Back-end
 ================================
 
+The main repository for this application is located here: https://github.com/Craven-Biostat-Lab/PLEIADES-backend
+
+
 Documentation still to write
 ------------------------
 - Add a requirements.txt file listing all Python package dependencies.  (I think all we need is python/mongo connector and bottle.)
