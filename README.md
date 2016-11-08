@@ -53,6 +53,27 @@ db.createCollection('user_edits_incremental');
 
 
 
+Fetch user feedback
+----------------------------
+User feedback gets stored in 3 different collections in the Mongo database.  To use dump the data into files, use the mongoexport command.
+
+Collections:
+- user_feedback: Cumulatively stores feedback for each datum accross all user sessions.  Excludes datums that were not edited by a user.
+- user_feedback_incremental: Contains one document for each time a user pressed the 'submit' button, including the open+submission timestamps, user IP address, and edits made by the user in this session.
+- articles: Used by the app to display citation information, list article datums, and show existing highlights.  When the user submits new highlights, the highlights in this table are overwritten in-place.
+
+To dump a collection using mongoexport:
+```
+mongoexport --db Big_Mechanism --collection <COLLECTION_NAME> --out <FILE_NAME>.json
+```
+
+If the database is on a remote machine (like the webserver,) you can either SSH into the remote machine or set mongoexport to connect with an SSH tunnel.  See mongoexport documentation:
+https://docs.mongodb.com/manual/reference/program/mongoexport/
+
+
+
+
+
 Separate front-end repository
 -------------------------------
 The front-end of this app is in a separate repository, which you can find here:
