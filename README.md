@@ -7,6 +7,7 @@ Documentation still to write
 - Write some documentation about the database
 
 
+
 Mongo Database setup
 ----------------------
 Create a db Big_Mechanism
@@ -21,9 +22,31 @@ mongoimport --db Big_Mechanism --collection articles --file Datums_MongoDB_OpenA
 Create an 2 collections called 'user_edits' and 'user_edits_incremental', where data submissions from the client will be recorded.
 
 (in mongo shell)
+```
 use Big_Mechanism;
 db.createCollection('user_edits');
 db.createCollection('user_edits_incremental');
+```
+
+
+
+Update the database
+--------------------------
+If you need to update the articles and datums in the database, make sure the structure of the new JSON file is the same as the old file, otherwise you'll have to edit the front-end and back-end code.
+
+To update the articles table:
+- In the mongo shell, call "use Big_Mehanism;', and then 'db.articles.drop();'
+- From the UNIX shell, run "mongoimport --db Big_Mechanism --collection articles --file <NEW_ARTICLES_FILE_NAME.json> --maintainInsertionOrder --jsonArray"
+
+After updating the database, you may want to empty the tables that collect user input.  To refresh the user data, run this in the mongo shell:
+```
+use Big_Mechanism;
+db.user_edits.drop();
+db.user_edits_incremental.drop();
+db.createCollection('user_edits');
+db.createCollection('user_edits_incremental');
+```
+
 
 
 
@@ -42,30 +65,64 @@ For deployment, you have to set up the static files to be served from the web se
 
 
 
+
 Installation
 -------------------
-- Clone the front-end repository (see above)
-- Install node.js (latest version, Ubuntu repository version is too old.).
-- CD to the frontend folder, and run "npm install" to install required node.js packages.
-- Copy article HTML files into the "articles" folder.  For the article PMC4055262, the HTML file should be in articles/PMC4055262/PMC4055262.html.  (For deployment, the HTML articles can go anywhere, not neccesarily into this directory, as long as the route is set correctly by the web server.  See the 'routes' section below.)
+Here are common steps for both development and deployment.  See the sections below for more specific instructions for each case.
 
-Look for articles in this folder:
+- Clone the front-end and back-end repositories (see above)
+```
+git clone https://github.com/Craven-Biostat-Lab/PLEIADES-backend
+git clone https://github.com/Craven-Biostat-Lab/PLEIADES-frontend
+```
+
+- Install node.js and npm (latest version, Ubuntu repository version is too old.).
+- CD to the frontend folder, and run "npm install" to install required node.js packages.
+
+- Copy article HTML files into the "articles" folder.  (See below.)
+
+
+
+
+HTML articles
+-------------------
+The front-end displays HTML articles pulled from PubMed Central, which are loaded as static files into an iframe.
+
+The back-end repository has a folder called "articles" in the root directory, the contents of which are set to be ignored by git.  Copy the articles into this folder.  For the article PMC4055262, the HTML file should be in articles/PMC4055262/PMC4055262.html.  
+
+Look for the HTML articles in this folder:
 /ua/ml-group/big-mechanism-project/PLEIADES/Sep2016_SMA/downloaded_articles
 
+(For deployment, the HTML articles can go anywhere, not neccesarily into this directory, as long as the route is set correctly by the web server.  See the 'routes' section below.)
 
 
 
-Development
+Development server
 -----------------
 To run the development server, run "python Datum_Extraction.py debug"
 
 
 
+
 Deployment
 ----------------
-Before deployment, CD to the front-end repo and run 'npm tsc' to compile TypeScript files.  (This is done automatically by the development server.)
+Before deployment, CD to the front-end repo and run 'npm run tsc' to compile TypeScript files.  (This is done automatically when using the development server, but not in deployment mode.)
 
-Calls to the back-end API are prefixed with the version number 'v1/'.  Direct traffic previxed with 'v1/' to the bottle application.
+Calls to the back-end API are prefixed with the version number 'api/v01/'.  Direct traffic previxed with 'v1/' to the bottle application.
+
+
+
+
+Updating code on the web server
+------------------------------
+TODO: Have to finish this section, once we figure out where the application is on the server and how to restart NGINX.
+
+To update code on the server
+- Git-pull the front-end
+- Git-pull the back-end
+- In the folder of the front-end git repository, run 'npm install' in case the dependencies have changed, and run 'npm run tsc' to transpile the front-end code.
+- Might possibly have to restart NGINX.
+
 
 
 
@@ -77,6 +134,24 @@ In debug mode, static routes are handled by the bottle script.  In deployment, t
 - /article-text    serves static files from the 'articles' folder.  (This route is only known to the front-end, the back-end doesn't do anything with it.)
 - /    root should serve static files from the root of the front-end
 - (catchall) any routes not matching any files in the front-end should serve index.html
+
+
+
+Here is the NGINX configuration for the routes, for deployment:
+```
+ location /api/v01 {
+                proxy_pass http://127.0.0.1:8080;
+        }
+        location /article-text {
+                alias /var/www/html/articles;
+                try_files $uri  =404;
+        }
+
+        location / {
+                try_files $uri /index.html;
+
+        }
+```
 
 
 
