@@ -56,24 +56,32 @@ def error404(error):
 @app.get(url_prefix + '/articles')
 def get_articles():
     """
-    Return the first 30 articles from the database as JSON.
+    Return articles from the database as JSON.
     
     This resource is used for the screen showing a list of articles.  If we decide
     to change which articles are shown on the page, we will need to change the query
     made against the database.
     """
 
-
-    # Query the database for the first 30 articles in the collection called 'articles'.
+    # Query the database for articles in the collection called 'articles'.
     # Exclude the 'datums' field for each article.
-    top_articles = database.articles.find(limit=30, projection={'Datums':False})
+    articles = database.articles.find(projection={'Datums':False})
+
+    # If we have 'limit' and 'skip' arguments in the query string, apply them to the mongodb cursor
+    # for paged results.
+    if 'limit' in request.query:
+        articles = articles.limit(int(request.query['limit']))
+
+    if 'skip' in request.query:
+        articles = articles.skip(int(request.query['skip']))
+
     
     # Set headers to tell the browser that this response has JSON.
     response.headers['Content-Type'] = 'application/json'
     response.headers['Cache-Control'] = 'no-cache'
     
     # Convert the query results into a JSON string, and return it as the response.
-    return json_util.dumps({'articles': list(top_articles)})
+    return json_util.dumps({'articles': list(articles)})
 
 
 
