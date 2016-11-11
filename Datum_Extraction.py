@@ -56,7 +56,7 @@ def error404(error):
 @app.get(url_prefix + '/articles')
 def get_articles():
     """
-    Return articles from the database as JSON.
+    Return articles from the database as JSON, also return the total number of articles.
     
     This resource is used for the screen showing a list of articles.  If we decide
     to change which articles are shown on the page, we will need to change the query
@@ -65,6 +65,7 @@ def get_articles():
 
     # Query the database for articles in the collection called 'articles'.
     # Exclude the 'datums' field for each article.
+    # Call the 'sort' method on this line to sort the articles.
     articles = database.articles.find(projection={'Datums':False})
 
     # If we have 'limit' and 'skip' arguments in the query string, apply them to the mongodb cursor
@@ -76,12 +77,16 @@ def get_articles():
         articles = articles.skip(int(request.query['skip']))
 
     
+    # Count the articles in the collection, so we can know when we're on the last page.
+    articleCount = database.articles.count()
+
+
     # Set headers to tell the browser that this response has JSON.
     response.headers['Content-Type'] = 'application/json'
     response.headers['Cache-Control'] = 'no-cache'
     
     # Convert the query results into a JSON string, and return it as the response.
-    return json_util.dumps({'articles': list(articles)})
+    return json_util.dumps({'articles': list(articles), 'articleCount': articleCount})
 
 
 
