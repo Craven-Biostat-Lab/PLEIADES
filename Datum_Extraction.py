@@ -16,7 +16,7 @@ that compiles the angular app watches for changes.  For deployment, omit the "de
 
 from bottle import Bottle, run
 from bottle import get, put, request, response, static_file
-from bottle import error
+from bottle import BaseRequest, error
 import logging
 import logging.config
 from pymongo import MongoClient
@@ -29,7 +29,7 @@ reload(sys)
 sys.setdefaultencoding("utf-8")
 from bson import json_util
 
-
+BaseRequest.MEMFILE_MAX = 1024 * 1024
 
 #app = application = Bottle()
 app = Bottle()
@@ -261,7 +261,7 @@ def insert_user_edits_incremental(json):
         'submitTime': json['submitTime'],
         'PMID': json['PMID'],
         'PMCID': json['PMCID'],
-        'clientIP': request.environ.get('REMOTE_ADDR'),
+        'clientIP': request.environ.get('HTTP_X_FORWARDED_FOR'),
         'treatments': treatments,
     })
 
@@ -349,7 +349,17 @@ def update_articles(json):
 # MongoDb connection details
 connection_string = "mongodb://localhost"
 connection = MongoClient(connection_string)
-database = connection.Big_Mechanism
+
+
+#MongoDb Database details
+#------------------------
+
+#database = connection.Big_Mechanism
+
+database = connection.Big_Mechanism_DUPL
+
+#database = connection.Big_Mechanism_ProtTrigs
+
 
 # Logging details
 #logging.config.fileConfig("./logs/logging.conf", disable_existing_loggers=False)
